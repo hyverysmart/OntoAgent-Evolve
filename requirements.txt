@@ -1,0 +1,6 @@
+rdflib
+fastapi
+uvicorn
+pymupdf
+requests
+matplotlib
