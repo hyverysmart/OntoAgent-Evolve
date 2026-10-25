@@ -1,0 +1,42 @@
+@prefix ex: <http://example.org/ontoagent#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+ex:ReadTask a ex:Task ;
+    ex:requiresCapability ex:read_pdf .
+
+ex:ReaderAgent a ex:Agent ;
+    ex:hasCapability ex:read_pdf .
+
+ex:ResearchAgent a ex:Agent ;
+    ex:hasCapability ex:read_pdf,
+        ex:search_paper .
+
+ex:ResearchTask a ex:Task ;
+    ex:requiresCapability ex:read_pdf,
+        ex:search_paper .
+
+ex:SearchAgent a ex:Agent ;
+    ex:hasCapability ex:search_paper .
+
+ex:SearchTask a ex:Task ;
+    ex:requiresCapability ex:search_paper .
+
+ex:WriterAgent a ex:Agent ;
+    ex:hasCapability ex:write_report .
+
+ex:hasCapability a owl:ObjectProperty .
+
+ex:requiresCapability a owl:ObjectProperty .
+
+ex:write_report a ex:Capability .
+
+ex:Capability a owl:Class .
+
+ex:Task a owl:Class .
+
+ex:Agent a owl:Class .
+
+ex:read_pdf a ex:Capability .
+
+ex:search_paper a ex:Capability .
+

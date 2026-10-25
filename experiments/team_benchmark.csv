@@ -1,0 +1,4 @@
+﻿agents,tasks,changes,avg_full_ms,avg_incremental_ms,avg_affected_tasks,speedup,consistency
+12,30,10,15.4742,7.7837,11.6,1.99,PASS
+20,60,10,24.8223,11.7198,21.4,2.12,PASS
+30,100,10,136.1759,82.2141,40.0,1.66,PASS

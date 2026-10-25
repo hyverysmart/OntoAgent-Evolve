@@ -1,0 +1,15 @@
+{
+  "SearchAgent": [
+    "WebSearchTool"
+  ],
+  "ReaderAgent": [
+    "PDFParserTool"
+  ],
+  "WriterAgent": [
+    "ReportWriterTool"
+  ],
+  "ResearchAgent": [
+    "PDFParserTool",
+    "WebSearchTool"
+  ]
+}

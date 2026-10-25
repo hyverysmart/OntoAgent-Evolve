@@ -1,0 +1,234 @@
+LLMs4OL: Large Language Models‌ for
+Ontology Learning
+Hamed Babaei Giglou[0000−0003−3758−1454], Jennifer
+D’Souza[0000−0002−6616−9509], and S¨oren Auer[0000−0002−0698−2864]
+TIB Leibniz Information Centre for Science and Technology, Hannover, Germany
+{hamed.babaei,jennifer.dsouza,auer}@tib.eu
+Abstract. We propose the LLMs4OL approach, which utilizes Large
+Language Models (LLMs) for Ontology Learning (OL). LLMs have shown
+significant advancements in natural language processing, demonstrating
+their ability to capture complex language patterns in different knowledge
+domains. Our LLMs4OL paradigm investigates the following hypothesis:
+Can LLMs effectively apply their language pattern capturing capability
+to OL, which involves automatically extracting and structuring knowl-
+edge from natural language text? To test this hypothesis, we conduct
+a comprehensive evaluation using the zero-shot prompting method. We
+evaluate nine different LLM model families for three main OL tasks:
+term typing, taxonomy discovery, and extraction of non-taxonomic re-
+lations. Additionally, the evaluations encompass diverse genres of onto-
+logical knowledge, including lexicosemantic knowledge in WordNet, geo-
+graphical knowledge in GeoNames, and medical knowledge in UMLS.
+The obtained empirical results show that foundational LLMs are not
+sufficiently suitable for ontology construction that entails a high degree
+of reasoning skills and domain expertise. Nevertheless, when effectively
+fine-tuned they just might work as suitable assistants, alleviating the
+knowledge acquisition bottleneck, for ontology construction.
+Keywords: Large Language Models · LLMs · Ontologies · Ontology
+Learning · Prompting · Prompt-based Learning.
+1
+Introduction
+Ontology Learning (OL) is an important field of research in artificial intelligence
+(AI) and knowledge engineering, as it addresses the challenge of knowledge ac-
+quisition and representation in a variety of domains. OL involves automatically
+identifying terms, types, relations, and potentially axioms from textual infor-
+mation to construct an ontology [29]. Numerous examples of human-expert cre-
+ated ontologies exist, ranging from general-purpose ontologies to domain-specific
+ones, e.g., Unified Medical Language System (UMLS) [8], WordNet [40], GeoN-
+ames [52], Dublin Core Metadata Initiative (DCMI) [64], schema.org [19], etc.
+Traditional ontology creation relies on manual specification by domain experts,
+which can be time-consuming, costly, error-prone, and impractical when knowl-
+edge constantly evolves or domain experts are unavailable. Consequently, OL
+arXiv:2307.16648v2  [cs.AI]  2 Aug 2023
+
+2
+Babaei Giglou et al.
+techniques have emerged to automatically acquire knowledge from unstructured
+or semi-structured sources, such as text documents and the web, and transform
+it into a structured ontology. A quick review of the field shows that traditional
+approaches to OL are based on lexico-syntactic pattern mining and cluster-
+ing [65,41,36,25,4,20,59,53,27,2,23,22]. In contrast, recent advances in natural
+language processing (NLP) through Large Language Models (LLMs) [45] offer
+a promising alternative to traditional OL methods. The ultimate goal of OL is
+to provide a cost-effective and scalable solution for knowledge acquisition and
+representation, enabling more efficient and effective decision-making in a range
+of domains. To this end, we introduce the LLMs4OL paradigm and empirically
+ground it as a foundational first step.
+Currently, there is no research explicitly training LLMs for OL. Thus to
+test LLMs for OL for the first time, we made some experimental considera-
+tions. The first being: Do the characteristics of LLMs justify ontology learning?
+First, LLMs are trained on extensive and diverse text, similar to domain-specific
+knowledge bases [50]. This aligns with the need for ontology developers to have
+extensive domain knowledge. Second, LLMs are built on the core technology of
+transformers that have enabled their higher language modeling complexity by
+facilitating the rapid scaling of their parameters. These parameters represent
+connections between words, enabling LLMs to comprehend the meaning of un-
+structured text like sentences or paragraphs. Further, by extrapolating complex
+linguistic patterns from word connections, LLMs exhibit human-like response
+capabilities across various tasks, as observed in the field of “emergent” AI. This
+behavior entails performing tasks beyond their explicit training, such as gener-
+ating executable code, diverse genre text, and accurate text summaries [57,62].
+Such ability of LLMs to extrapolate patterns from simple word connections, en-
+coding language semantics, is crucial for OL. Ontologies often rely on analyzing
+and extrapolating structured information connections, such as term-type tax-
+onomies and relations, from unstructured text [17]. Thus LLMs4OL hypothesis
+of LLMs’ fruitful application for OL appeared conceptually justified.
+LLMs are being developed at a rapid pace. At the time of writing of this
+work, at least 60 different LLMs are reported [5]. This led to our second main
+experimental consideration. Which LLMs to test for the LLMs4OL task hypoth-
+esis? Empirical validation of various LLMs is crucial for NLP advancements and
+selecting suitable models for research tasks. Despite impressive performances in
+diverse NLP tasks, LLM effectiveness varies. For the foundational groundwork of
+LLMs4OL, we comprehensively selected eight diverse model families based on ar-
+chitecture and reported state-of-the-art performances at the time of this writing.
+The three main LLM architectures are encoder, decoder, and encoder-decoder.
+The selected LLMs for validation are: BERT [15] (encoder-only); BLOOM [55],
+MetaAI’s LLaMA [58], OpenAI’s GPT-3 [9], GPT-3.5 [45], GPT-4 [46] (all
+decoder-only); and BART [32] and Google’s Flan-T5 [10] (encoder-decoder).
+Recent studies show that BERT excels in text classification and named entity
+recognition [15], BART is effective in text generation and summarization [32],
+and LLaMA demonstrates high accuracy in various NLP tasks, including reason-
+
+LLMs4OL: Large Language Models‌ for Ontology Learning
+3
+ing, question answering, and code generation [58]. Flan-T5 emphasizes instruc-
+tion tuning and exhibits strong multi-task performance [10]. BLOOM’s unique
+multilingual approach achieves robust performance in tasks like text classifica-
+tion and sequence tagging [55]. Lastly, the GPT series stands out for its human-
+like text generation abilities [9,45,46]. In this work, we aim to comprehensively
+unify these LLMs for their effectiveness under the LLMs4OL paradigm for the
+first time.
+With the two experimental considerations in place, we now introduce the
+LLMs4OL paradigm and highlight our contributions. LLMs4OL is centered around
+the development of ontologies that comprise the following primitives [38]: 1. a
+set of strings that describe terminological lexical entries L for conceptual types;
+2. a set of conceptual types T; 3. a taxonomy of types in a hierarchy HT ; 4. a
+set of non-taxonomic relations R described by their domain and range restric-
+tions arranged in a heterarchy of relations HR; and 5. a set of axioms A that
+describe additional constraints on the ontology and make implicit facts explicit.
+The LLMs4OL paradigm, introduced in this work, addresses three core aspects
+of OL as tasks, outlined as the following research questions (RQs).
+– RQ1: Term Typing Task – How effective are LLMs for automated type
+discovery to construct an ontology?
+– RQ2: Type Taxonomy Discovery Task – How effective are LLMs to recognize
+a type taxonomy i.e. the “is-a” hierarchy between types?
+– RQ3: Type Non-Taxonomic Relation Extraction Task – How effective are
+LLMs to discover non-taxonomic relations between types?
+The diversity of the empirical tests of this work are not only w.r.t. LLMs con-
+sidered, but also the ontological knowledge domains tested for. Specifically, we
+test LLMs for lexico-semantic knowledge in WordNet [40], geographical knowl-
+edge in GeoNames [1], biomedical knowledge in UMLS [7], and web content type
+representations in schema.org [47]. For our empirical validation of LLMs4OL, we
+seize the opportunity to include PubMedBERT [18], a domain-specific LLM de-
+signed solely for the biomedical domain and thus applicable only to UMLS. This
+addition complements the eight domain-independent model families introduced
+earlier as a ninth model type. Summarily, our main contributions are:
+– The LLMs4OL task paradigm as a conceptual framework for leveraging
+LLMs for OL.
+– An implementation of the LLMs4OL concept leveraging tailored prompt
+templates for zero-shot OL in the context of three specific tasks, viz. term
+typing, type taxonomic relation discovery, and type non-taxonomic relation
+discovery. These tasks are evaluated across unique ontological sources well-
+known in the community. Our code source with templates and datasets per
+task are released here https://github.com/HamedBabaei/LLMs4OL.
+– A thorough out-of-the-box empirical evaluation of eight state-of-the-art domain-
+independent LLM types (10 models) and a ninth biomedical domain-specific
+LLM type (11th model) for their suitability to the various OL tasks consid-
+ered in this work. Furthermore, the most effective overall LLM is finetuned
+and subsequently finetuned LLM results are reported for our three OL tasks.
+
+4
+Babaei Giglou et al.
+2
+Related Work
+There are three avenues of related research: ontology learning from text, prompt-
+ing LLMs for knowledge, and LLM prompting methods or prompt engineering.
+Ontology Learning from Text. One of the earliest approaches [22] used lex-
+icosyntactic patterns to extract new lexicosemantic concepts and relations from
+large collections of unstructured text, enhancing WordNet [40]. WordNet is a
+lexical database comprising a lexical ontology of concepts (nouns, verbs, etc.)
+and lexico-semantic relations (synonymy, hyponymy, etc.). Hwang [23] proposed
+an alternative approach for constructing a dynamic ontology specific to an ap-
+plication domain. The method involved iteratively discovering types and tax-
+onomy from unstructured text using a seed set of terms representing high-level
+domain types. In each iteration, newly discovered specialized types were incor-
+porated, and the algorithm detected relations between linguistic features. The
+approach utilized a simple ontology algebra based on inheritance hierarchy and
+set operations. Agirre et al.[2] enhanced WordNet by extracting topically related
+words from web documents. This unique approach added topical signatures to
+enrich WordNet. Kietz et al.[27] introduced the On-To-Knowledge system, which
+utilized a generic core ontology like GermaNet [21] or WordNet as the founda-
+tional structure. It aimed to discover a domain-specific ontology from corporate
+intranet text resources. For concept extraction and pruning, it employed statis-
+tical term frequency count heuristics, while association rules were applied for
+relation identification in corporate texts. Roux et al.[53] proposed a method to
+expand a genetics ontology by reusing existing domain ontologies and enhancing
+concepts through verb patterns extracted from unstructured text. Their system
+utilized linguistic tools like part-of-speech taggers and syntactic parsers. Wagner
+[59] employed statistical analysis of corpora to enrich WordNet in non-English
+languages by discovering relations, adding new terms to concepts, and acquiring
+concepts through the automatic acquisition of verb preferences. Moldovan and
+Girju [42] introduced the Knowledge Acquisition from Text (KAT) system to
+enrich WordNet’s finance domain coverage. Their method involved four stages:
+(1) discovering new concepts from a seed set of terms, expanding the concept list
+using dictionaries; (2) identifying lexical patterns from new concepts; (3) discov-
+ering relations from lexical patterns; and (4) integrating extracted information
+into WordNet using a knowledge classification algorithm. In [4], an unsupervised
+method is presented to enhance ontologies with domain-specific information us-
+ing NLP techniques such as NER and WSD. The method utilizes a general NER
+system to uncover a taxonomic hierarchy and employs WSD to enrich existing
+synsets by querying the internet for new terms and disambiguating them through
+cooccurrence frequency. Khan and Luo [25] employed clustering techniques to
+find new terms, utilizing WordNet for typing. They used the self-organizing tree
+algorithm [16], inspired by molecular evolution, to establish an ontology hier-
+archy. Additionally, Xu et al. [65] focused on automatically acquiring domain-
+specific terms and relations through a TFIDF-based single-word term classifier,
+a lexico-syntactic pattern finder based on known relations and collocations, and
+a relation extractor utilizing discovered lexico-syntactic patterns.
+
+LLMs4OL: Large Language Models‌ for Ontology Learning
+5
+Predominantly, the approaches for OL [60] that stand out so far are based
+on lexico-syntactic patterns for term and relation extraction as well as cluster-
+ing for type discovery. Otherwise, they build on seed-term-based bootstrapping
+methods. The reader is referred to further detailed reviews [6,37] on this theme
+for a comprehensive overall methodological picture for OL. Traditional NLP
+was defined by modular pipelines by which machines were equipped step-wise
+with annotations at the linguistic, syntactic, and semantic levels to process text.
+LLMs have ushered in a new era of possibilities for AI systems that obviate the
+need for modular NLP systems to understand natural language which we tap
+into for the first time for the OL task in this work.
+Prompting LLMs for Knowledge. LLMs can process and retrieve facts based
+on their knowledge which makes them good zero-shot learners for various NLP
+tasks. Prompting LLMs means feeding an input x using a template function
+fprompt(x), a textual string prompt input that has some unfilled slots, and then
+the LLMs are used to probabilistically fill the unfilled information to obtain a
+final string x′, from which the final output y can be derived [34]. The LAMA:
+LAnguage Model Analysis [51] benchmark has been introduced as a probing tech-
+nique for analyzing the factual and commonsense knowledge contained in unidi-
+rectional LMs (i.e. Transformer-XL [12]) and bidirectional LMs (i.e. BERT and
+ELMo [48]) with cloze prompt templates from knowledge triples. They demon-
+strated the potential of pre-trained language models (PLMs) in probing facts –
+where facts are taken into account as subject-relation-object triples or question-
+answer pairs – with querying LLMs by converting facts into a cloze template
+which is used as an input for the LM to fill the missing token. Further studies
+extended LAMA by the automated discovery of prompts [24], finetuning LLMs
+for better probing [3,31,66], or a purely unsupervised way of probing knowledge
+from LMs [49]. These studies analyzed LLMs for their ability to encode vari-
+ous linguistic and non-linguistic facts. This analysis was limited to predefined
+facts that reinforce the traditional linguistic knowledge of the LLMs, and as
+a result do not reflect how concepts are learned by the LLMs. In response to
+this limitation, Dalvi et al. [13] put forward a proposal to explore and exam-
+ine the latent concepts learned by LLMs, offering a fresh perspective on BERT.
+They defined concepts as “a group of words that are meaningful,” i.e. that can
+be clustered based on relations such as lexical, morphological, etc. In another
+study [54], they propose the framework ConceptX by extending their studies on
+seven LLMs in latent space analysis with the alignment of the grouped concepts
+to human-defined concepts. These works show that using LLMs and accessing
+the concept’s latent spaces, allows us to group concepts and align them to pre-
+defined types and type relations discovery.
+Prompt Engineering. As a novel discipline, prompt engineering focuses on
+designing optimal instructions for LLMs to enable successful task performance.
+Standard prompting [61] represents a fundamental approach for instructing LLMs.
+It allows users to craft their own customized “self-designed prompts” to effec-
+tively interact with LLMs [9] and prompt them to respond to the given prompt
+instruction straightaway with an answer. Consider the manually crafted FLAN

@@ -1,0 +1,9 @@
+﻿group,agents,tasks,repetitions,changes_per_run,full_mean_ms,incremental_mean_ms,full_std_ms,incremental_std_ms,affected_pct,speedup,consistency
+AgentScaling,10,100,3,10,41.1819,18.9867,1.2034,1.5841,38.6,2.169,PASS
+AgentScaling,20,100,3,10,68.6958,33.1127,16.6881,8.8526,40.5,2.075,PASS
+AgentScaling,30,100,3,10,89.5377,46.5466,40.5607,27.6016,39.87,1.924,PASS
+AgentScaling,40,100,3,10,110.1704,63.6699,23.1843,9.6019,40.9,1.73,PASS
+TaskScaling,20,50,3,10,40.6219,17.762,15.4842,7.605,39.0,2.287,PASS
+TaskScaling,20,100,3,10,68.2533,33.6777,12.5933,9.0547,40.5,2.027,PASS
+TaskScaling,20,200,3,10,120.4873,64.9867,10.5753,7.787,39.72,1.854,PASS
+TaskScaling,20,400,3,10,255.6412,142.8059,52.2569,32.196,40.01,1.79,PASS

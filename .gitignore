@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.vscode/
+
+# Runtime state
+data/dynamic_tools.json
+*.tmp
+
+# Secrets
+*.key
+*.pem

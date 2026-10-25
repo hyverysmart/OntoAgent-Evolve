@@ -1,0 +1,2 @@
+﻿group,agents,tasks,repetitions,changes_per_run,full_mean_ms,incremental_mean_ms,full_std_ms,incremental_std_ms,lookup_mean_ms,recommendation_mean_ms,affected_pct,speedup,consistency
+TaskScaling,20,100,3,10,68.7942,35.3561,17.5324,9.2524,0.0092,35.3439,40.5,1.946,PASS
